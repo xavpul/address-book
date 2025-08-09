@@ -1,6 +1,16 @@
-def main():
-    print("Hello from address-book!")
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+from core.db import engine
 
 
-if __name__ == "__main__":
-    main()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(
+    title="Address Book",
+    lifespan=lifespan,
+)
