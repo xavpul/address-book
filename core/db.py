@@ -23,9 +23,15 @@ engine: AsyncEngine = create_async_engine(
 )
 
 
-def _enable_spatialite(dbapi_conn, _):
-    dbapi_conn.enable_load_extension(True)
-    dbapi_conn.load_extension("/usr/lib/sqlite3/pmod_spatialite.so")
+def _enable_spatialite(dbapi_conn, connection_record):
+    """
+    This hook is called with whatever the DBAPI returns.
+    For aiosqlite it’s an AsyncAdaptedConnection proxy, which
+    wraps the real sqlite3.Connection in ._connection.
+    """
+    raw = getattr(dbapi_conn, "_connection", dbapi_conn)
+    raw.enable_load_extension(True)
+    raw.load_extension("/usr/lib/libspatialite.so")
 
 
 event.listen(engine.sync_engine, "connect", _enable_spatialite)
