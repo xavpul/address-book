@@ -41,22 +41,30 @@ Open: http://127.0.0.1:8000/docs
 
 ## 🧪 Testing
 Install dev deps and run tests:
-- uv add --dev pytest pytest-asyncio httpx anyio
-- uv run pytest -q
+```
+uv add --dev pytest pytest-asyncio httpx anyio
+uv run pytest -q
+```
 
 ---
 
 ## 📡 API Quickstart (curl)
 Create:
+```
 curl -X POST http://127.0.0.1:8000/addresses/ \
   -H "Content-Type: application/json" \
   -d '{"name":"Home","lat":40.7128,"lng":-74.0060}'
+```
 
 Get by ID:
+```
 curl http://127.0.0.1:8000/addresses/1
+```
 
 Nearby (2 km around a point):
+```
 curl "http://127.0.0.1:8000/addresses/nearby?lat=40.7128&lng=-74.0060&radius_km=2"
+```
 
 ---
 
