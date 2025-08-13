@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 from contextlib import asynccontextmanager
+import sys
 from typing import AsyncGenerator
 
 import pytest
@@ -14,6 +15,10 @@ os.environ["DB_URL"] = "sqlite+aiosqlite:///./test.db"
 os.environ["DB_MIGRATION_URL"] = "sqlite:///./test.db"
 
 # Import after env vars are set
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from main import app  # noqa: E402
 from core.db import engine, SessionLocal  # noqa: E402
 
@@ -64,8 +69,7 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 # Override get_db dependency to use the same session factory
-@asynccontextmanager
-async def _override_get_db() -> AsyncGenerator[AsyncSession, None]:
+async def _override_get_db():
     async with SessionLocal() as session:
         try:
             yield session
@@ -77,17 +81,15 @@ async def _override_get_db() -> AsyncGenerator[AsyncSession, None]:
 
 @pytest.fixture
 async def client():
-    # Override dependency
-    from core.db import get_db  # local import to avoid circulars
+    from core.db import get_db
+    from httpx import AsyncClient, ASGITransport
 
     app.dependency_overrides[get_db] = _override_get_db
 
-    # Use httpx AsyncClient against ASGI app
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://testserver",
     ) as ac:
         yield ac
 
-    # Clean overrides
     app.dependency_overrides.clear()
