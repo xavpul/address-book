@@ -1,6 +1,6 @@
 ## 📒 Address Book API
 
-A small FastAPI app with async SQLAlchemy + SQLite and Haversine-based “nearby” search. Perfect for quick demos and job applications.
+A small FastAPI app with async SQLAlchemy + SQLite and Haversine-based “nearby” search.
 
 MIT License.
 
