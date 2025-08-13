@@ -23,23 +23,13 @@ app = FastAPI(title="Address Book API", lifespan=lifespan)
 async def create_address(payload: AddressCreate, db: AsyncSession = Depends(get_db)):
     addr = Address(name=payload.name, lat=payload.lat, lng=payload.lng)
     db.add(addr)
-    await db.flush()
+    await db.commit()
     await db.refresh(addr)
     return AddressOut(id=addr.id, name=addr.name, lat=addr.lat, lng=addr.lng)
 
 
-@app.get("/addresses/{addr_id}", response_model=AddressOut)
-async def read_address(addr_id: int, db: AsyncSession = Depends(get_db)):
-    stmt = select(Address).where(Address.id == addr_id)
-    obj = (await db.execute(stmt)).scalars().first()
-    if not obj:
-        raise HTTPException(status_code=404, detail="Not found")
-    return AddressOut(id=obj.id, name=obj.name, lat=obj.lat, lng=obj.lng)
-
-
 def _bbox_for_radius(lat: float, lng: float, radius_km: float):
     lat_delta = radius_km / 111.32
-    # Guard against cos(lat) ~ 0 near poles
     denom = 111.32 * max(1e-9, math.cos(math.radians(lat)))
     lng_delta = radius_km / denom
     return (lat - lat_delta, lat + lat_delta, lng - lng_delta, lng + lng_delta)
@@ -69,3 +59,11 @@ async def nearby_addresses(
     ]
     return results
 
+
+@app.get("/addresses/{addr_id}", response_model=AddressOut)
+async def read_address(addr_id: int, db: AsyncSession = Depends(get_db)):
+    stmt = select(Address).where(Address.id == addr_id)
+    obj = (await db.execute(stmt)).scalars().first()
+    if not obj:
+        raise HTTPException(status_code=404, detail="Not found")
+    return AddressOut(id=obj.id, name=obj.name, lat=obj.lat, lng=obj.lng)
