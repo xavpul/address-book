@@ -9,6 +9,5 @@ class Address(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    lat: Mapped[float] = mapped_column(Float, nullable=False)  # degrees
+    lat: Mapped[float] = mapped_column(Float, nullable=False)
     lng: Mapped[float] = mapped_column(Float, nullable=False)
-
