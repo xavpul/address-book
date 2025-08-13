@@ -2,8 +2,6 @@
 
 A small FastAPI app with async SQLAlchemy + SQLite and Haversine-based “nearby” search.
 
-MIT License.
-
 ---
 
 ## 🚀 Features
